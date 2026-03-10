@@ -1,1 +1,1 @@
-# pricing-dashboard
+# pricing_dashboard
