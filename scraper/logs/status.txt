@@ -1,0 +1,1 @@
+Jewel scraper stuck - product-item-al-v2 never renders, localStorage injection may not be working

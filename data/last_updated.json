@@ -1,0 +1,30 @@
+{
+  "lastRun": "2026-03-12T18:24:58.127Z",
+  "retailers": {
+    "Binny's": {
+      "status": "success",
+      "lastSuccess": "2026-03-12T18:23:28.487Z",
+      "productCount": 46
+    },
+    "Total Wine": {
+      "status": "not_implemented",
+      "lastSuccess": null,
+      "productCount": 0
+    },
+    "Jewel": {
+      "status": "failed",
+      "lastSuccess": null,
+      "productCount": 0
+    },
+    "Whole Foods": {
+      "status": "not_implemented",
+      "lastSuccess": null,
+      "productCount": 0
+    },
+    "Mariano's": {
+      "status": "not_implemented",
+      "lastSuccess": null,
+      "productCount": 0
+    }
+  }
+}

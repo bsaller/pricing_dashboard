@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Beer Pricing Analytics Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script><style>
+:root{--navy:#1a2332;--accent:#d4a017;--border:#e0e0e0;--muted:#666}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f0f2f5;color:#222}
+header{background:var(--navy);color:#fff;padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:1.35rem;font-weight:700;letter-spacing:.3px}
+#hdr-count{font-size:.85rem;color:#a0b0c8}
+#app{display:flex;min-height:calc(100vh - 56px)}
+#filters{width:210px;min-width:190px;background:#fff;border-right:1px solid var(--border);padding:1.1rem;overflow-y:auto;flex-shrink:0}
+#filters>h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);margin-bottom:.9rem;font-weight:700}
+.fg{margin-bottom:1rem}
+.fg-title{font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.fg label{display:flex;align-items:center;gap:.35rem;font-size:.78rem;padding:.1rem 0;cursor:pointer}
+.fg input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0}
+.rg{margin-bottom:1rem}
+.rg-label{font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:.4rem}
+.rg-label span{font-weight:400;color:var(--navy)}
+.rw{position:relative;height:24px}
+.rw input[type=range]{position:absolute;width:100%;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none;height:4px;top:50%;transform:translateY(-50%)}
+.rw input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);pointer-events:all;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.rw input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--accent);pointer-events:all;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.rt{position:absolute;top:50%;transform:translateY(-50%);height:4px;background:var(--border);width:100%;border-radius:2px}
+.rf{position:absolute;top:50%;transform:translateY(-50%);height:4px;background:var(--accent);border-radius:2px}
+#reset-btn{width:100%;padding:.45rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;margin-top:.3rem}
+#reset-btn:hover{background:#b8890f}
+main{flex:1;padding:1.4rem;min-width:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:1.2rem}
+.card>h2{font-size:.88rem;font-weight:700;color:var(--navy);margin-bottom:.9rem;border-bottom:2px solid var(--accent);padding-bottom:.3rem;display:inline-block}
+.full{grid-column:1/-1}
+.tw{overflow:auto;max-height:360px}
+table{width:100%;border-collapse:collapse;font-size:.76rem}
+thead th{background:var(--navy);color:#fff;padding:.45rem .55rem;text-align:left;cursor:pointer;white-space:nowrap;position:sticky;top:0;z-index:1;user-select:none}
+thead th:hover{background:#263550}
+.sa::after{content:" \25B2";font-size:.6rem}.sd::after{content:" \25BC";font-size:.6rem}
+tbody tr:nth-child(even){background:#f9fafb}
+tbody td{padding:.38rem .55rem;border-bottom:1px solid var(--border);white-space:nowrap}
+.bvg{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.bvg h3{font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.bvi{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.78rem}
+.bvi .bvv{font-weight:700;color:var(--accent);margin-left:.5rem;white-space:nowrap}
+.bvi .bvn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:860px){#app{flex-direction:column}#filters{width:100%;border-right:none;border-bottom:1px solid var(--border)}.grid{grid-template-columns:1fr}.full{grid-column:1}}
+</style></head><body>
+<header>
+  <h1>Beer Pricing Analytics Dashboard</h1>
+  <span id="hdr-count"></span>
+</header>
+<div id="app">
+  <aside id="filters">
+    <h2>Filters</h2>
+    <div id="f-retailer" class="fg"></div>
+    <div id="f-style" class="fg"></div>
+    <div id="f-brand" class="fg"></div>
+    <div id="f-price" class="rg"></div>
+    <div id="f-abv" class="rg"></div>
+    <button id="reset-btn">Reset Filters</button>
+  </aside>
+  <main>
+    <div class="grid">
+      <div class="card full"><h2>Product Data</h2><div class="tw"><table id="tbl"><thead id="th"></thead><tbody id="tb"></tbody></table></div></div>
+      <div class="card"><h2>Avg Price/oz by Brand</h2><canvas id="cBrand"></canvas></div>
+      <div class="card"><h2>Avg Price/oz by Style</h2><canvas id="cStyle"></canvas></div>
+      <div class="card full"><h2>ABV vs Price/oz</h2><canvas id="cScatter" style="max-height:320px"></canvas></div>
+      <div class="card full"><h2>Best Value</h2><div class="bvg"><div><h3>Top 5 — Lowest Price/oz</h3><div id="bvOz"></div></div><div><h3>Top 5 — Lowest Price/Alcohol Unit</h3><div id="bvAlc"></div></div></div></div>
+    </div>
+  </main>
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const RAW=[
+  {retailer:"Binny's",brand:"Three Floyds",productName:"Zombie Dust Pale Ale 6pk 12oz",style:"Pale Ale",sizeOz:12,packSize:6,price:14.99,abv:6.2},
+  {retailer:"Binny's",brand:"Half Acre",productName:"Daisy Cutter IPA 6pk 12oz",style:"IPA",sizeOz:12,packSize:6,price:12.99,abv:5.2},
+  {retailer:"Binny's",brand:"Revolution",productName:"Eugene Porter 6pk 12oz",style:"Porter",sizeOz:12,packSize:6,price:11.99,abv:6.3},
+  {retailer:"Binny's",brand:"Dogfish Head",productName:"60 Minute IPA 6pk 12oz",style:"IPA",sizeOz:12,packSize:6,price:13.99,abv:6.0},
+  {retailer:"Binny's",brand:"Goose Island",productName:"312 Urban Wheat 6pk 12oz",style:"Wheat",sizeOz:12,packSize:6,price:9.99,abv:4.2},
+  {retailer:"Binny's",brand:"Modelo",productName:"Modelo Especial 12pk 12oz",style:"Lager",sizeOz:12,packSize:12,price:19.99,abv:4.4},
+  {retailer:"Total Wine",brand:"Miller",productName:"Miller Lite 12pk 12oz",style:"Lager",sizeOz:12,packSize:12,price:13.99,abv:4.2},
+  {retailer:"Total Wine",brand:"Heineken",productName:"Heineken Lager 6pk 12oz",style:"Lager",sizeOz:12,packSize:6,price:10.99,abv:5.0},
+  {retailer:"Total Wine",brand:"Dogfish Head",productName:"90 Minute IPA 4pk 16oz",style:"IPA",sizeOz:16,packSize:4,price:16.99,abv:9.0},
+  {retailer:"Total Wine",brand:"Revolution",productName:"Anti-Hero IPA 6pk 12oz",style:"IPA",sizeOz:12,packSize:6,price:12.99,abv:6.7},
+  {retailer:"Total Wine",brand:"Blue Moon",productName:"Blue Moon Wheat 6pk 12oz",style:"Wheat",sizeOz:12,packSize:6,price:9.99,abv:5.4},
+  {retailer:"Total Wine",brand:"Goose Island",productName:"Bourbon County Stout 22oz",style:"Stout",sizeOz:22,packSize:1,price:14.99,abv:8.5},
+  {retailer:"Jewel",brand:"AB InBev",productName:"Bud Light 12pk 12oz",style:"Lager",sizeOz:12,packSize:12,price:13.99,abv:4.2},
+  {retailer:"Jewel",brand:"Molson Coors",productName:"Coors Light 6pk 12oz",style:"Lager",sizeOz:12,packSize:6,price:7.99,abv:3.8},
+  {retailer:"Jewel",brand:"Miller",productName:"Miller Lite 6pk 12oz",style:"Lager",sizeOz:12,packSize:6,price:7.49,abv:4.2},
+  {retailer:"Jewel",brand:"AB InBev",productName:"Stella Artois 6pk 12oz",style:"Lager",sizeOz:12,packSize:6,price:10.99,abv:5.0},
+  {retailer:"Jewel",brand:"Goose Island",productName:"Goose IPA 6pk 12oz",style:"IPA",sizeOz:12,packSize:6,price:9.99,abv:5.9},
+  {retailer:"Jewel",brand:"Blue Moon",productName:"Blue Moon Wheat 12pk 12oz",style:"Wheat",sizeOz:12,packSize:12,price:17.99,abv:5.4},
+  {retailer:"Whole Foods",brand:"Three Floyds",productName:"Gumballhead Wheat 6pk 12oz",style:"Wheat",sizeOz:12,packSize:6,price:13.99,abv:5.6},
+  {retailer:"Whole Foods",brand:"Half Acre",productName:"Gossamer Pale Ale 6pk 12oz",style:"Pale Ale",sizeOz:12,packSize:6,price:12.99,abv:4.8},
+  {retailer:"Whole Foods",brand:"Dogfish Head",productName:"SeaQuench Sour 6pk 12oz",style:"Sour",sizeOz:12,packSize:6,price:14.99,abv:4.9},
+  {retailer:"Whole Foods",brand:"Revolution",productName:"Fistmas Porter 4pk 16oz",style:"Porter",sizeOz:16,packSize:4,price:14.99,abv:7.5},
+  {retailer:"Whole Foods",brand:"Modelo",productName:"Modelo Negra 6pk 12oz",style:"Lager",sizeOz:12,packSize:6,price:11.99,abv:5.4},
+  {retailer:"Whole Foods",brand:"Heineken",productName:"Heineken Lager 12pk 12oz",style:"Lager",sizeOz:12,packSize:12,price:18.99,abv:5.0},
+  {retailer:"Mariano's",brand:"AB InBev",productName:"Budweiser 12pk 12oz",style:"Lager",sizeOz:12,packSize:12,price:13.99,abv:5.0},
+  {retailer:"Mariano's",brand:"Goose Island",productName:"Honker's Ale 6pk 12oz",style:"Pale Ale",sizeOz:12,packSize:6,price:9.99,abv:4.3},
+  {retailer:"Mariano's",brand:"Goose Island",productName:"Goose Island Stout 6pk 12oz",style:"Stout",sizeOz:12,packSize:6,price:9.99,abv:5.7},
+  {retailer:"Mariano's",brand:"Half Acre",productName:"Vallejo IPA 6pk 12oz",style:"IPA",sizeOz:12,packSize:6,price:11.99,abv:6.0},
+  {retailer:"Mariano's",brand:"Dogfish Head",productName:"Slightly Mighty IPA 6pk 12oz",style:"IPA",sizeOz:12,packSize:6,price:12.99,abv:4.0},
+  {retailer:"Mariano's",brand:"Revolution",productName:"Rosa Hibiscus Sour 4pk 16oz",style:"Sour",sizeOz:16,packSize:4,price:15.99,abv:5.0},
+];
+const products=RAW.map(p=>{const t=p.sizeOz*p.packSize;return{...p,totalOz:t,pricePerOz:p.price/t,pricePerAlcoholUnit:p.price/(t*(p.abv/100))};});
+// ── END CHUNK 1 ───────────────────────────────────────────────────────────────
+
+// ── FILTER STATE ──────────────────────────────────────────────────────────────
+const uniq=(arr,k)=>[...new Set(arr.map(p=>p[k]))].sort();
+const RETAILERS=uniq(products,'retailer'),STYLES=uniq(products,'style'),BRANDS=uniq(products,'brand');
+const pMin=Math.min(...products.map(p=>p.price)),pMax=Math.max(...products.map(p=>p.price));
+const aMin=Math.min(...products.map(p=>p.abv)), aMax=Math.max(...products.map(p=>p.abv));
+let state={retailers:new Set(RETAILERS),styles:new Set(STYLES),brands:new Set(BRANDS),pLo:pMin,pHi:pMax,aLo:aMin,aHi:aMax};
+
+function filtered(){
+  return products.filter(p=>
+    state.retailers.has(p.retailer)&&state.styles.has(p.style)&&state.brands.has(p.brand)&&
+    p.price>=state.pLo&&p.price<=state.pHi&&p.abv>=state.aLo&&p.abv<=state.aHi
+  );
+}
+
+// ── FILTER UI ─────────────────────────────────────────────────────────────────
+function mkCheckboxGroup(elId,title,values,stateSet){
+  const el=document.getElementById(elId);
+  el.innerHTML=`<div class="fg-title">${title}</div>`;
+  values.forEach(v=>{
+    const lbl=document.createElement('label');
+    const cb=document.createElement('input');
+    cb.type='checkbox';cb.value=v;cb.checked=true;
+    cb.addEventListener('change',()=>{cb.checked?stateSet.add(v):stateSet.delete(v);render();});
+    lbl.append(cb,v);el.append(lbl);
+  });
+}
+
+function mkRangeSlider(elId,title,lo,hi,step,onUpdate){
+  const el=document.getElementById(elId);
+  const fmt=v=>step<1?v.toFixed(1):v.toFixed(2);
+  el.innerHTML=`<div class="rg-label"><span>${title}</span><span id="${elId}-val">${fmt(lo)} – ${fmt(hi)}</span></div>
+    <div class="rw"><div class="rt"></div><div class="rf" id="${elId}-fill"></div>
+    <input type="range" id="${elId}-lo" min="${lo}" max="${hi}" step="${step}" value="${lo}">
+    <input type="range" id="${elId}-hi" min="${lo}" max="${hi}" step="${step}" value="${hi}"></div>`;
+  const rLo=document.getElementById(`${elId}-lo`),rHi=document.getElementById(`${elId}-hi`);
+  const fill=document.getElementById(`${elId}-fill`),val=document.getElementById(`${elId}-val`);
+  function upd(){
+    let a=parseFloat(rLo.value),b=parseFloat(rHi.value);
+    if(a>b){if(this===rLo)a=b;else b=a;rLo.value=a;rHi.value=b;}
+    const pct=v=>((v-lo)/(hi-lo)*100).toFixed(1)+'%';
+    fill.style.left=pct(a);fill.style.width=((b-a)/(hi-lo)*100).toFixed(1)+'%';
+    val.textContent=`${fmt(a)} – ${fmt(b)}`;
+    onUpdate(a,b);render();
+  }
+  rLo.addEventListener('input',upd);rHi.addEventListener('input',upd);
+  upd.call(rLo);
+  return ()=>{rLo.value=lo;rHi.value=hi;upd.call(rLo);};
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────────
+const COLS=[
+  {key:'retailer',label:'Retailer'},{key:'brand',label:'Brand'},{key:'productName',label:'Product'},
+  {key:'style',label:'Style'},{key:'packSize',label:'Pack'},{key:'sizeOz',label:'Size (oz)'},
+  {key:'totalOz',label:'Total oz'},{key:'price',label:'Price ($)',fmt:v=>'$'+v.toFixed(2)},
+  {key:'pricePerOz',label:'$/oz',fmt:v=>v.toFixed(3)},
+  {key:'abv',label:'ABV (%)',fmt:v=>v.toFixed(1)+'%'},
+  {key:'pricePerAlcoholUnit',label:'$/alc-oz',fmt:v=>v.toFixed(3)},
+];
+let sortKey='pricePerOz',sortDir=1;
+
+function renderTable(data){
+  const thead=document.getElementById('th'),tbody=document.getElementById('tb');
+  if(!thead.hasChildNodes()){
+    const tr=document.createElement('tr');
+    COLS.forEach(c=>{
+      const th=document.createElement('th');th.textContent=c.label;th.dataset.key=c.key;
+      th.addEventListener('click',()=>{
+        if(sortKey===c.key)sortDir*=-1;else{sortKey=c.key;sortDir=1;}
+        renderTable(filtered());
+      });
+      tr.append(th);
+    });
+    thead.append(tr);
+  }
+  // sort indicators
+  thead.querySelectorAll('th').forEach(th=>{
+    th.className=th.dataset.key===sortKey?(sortDir===1?'sa':'sd'):'';
+  });
+  const sorted=[...data].sort((a,b)=>{
+    const av=a[sortKey],bv=b[sortKey];
+    return typeof av==='string'?av.localeCompare(bv)*sortDir:(av-bv)*sortDir;
+  });
+  tbody.innerHTML='';
+  sorted.forEach(p=>{
+    const tr=document.createElement('tr');
+    COLS.forEach(c=>{
+      const td=document.createElement('td');
+      td.textContent=c.fmt?c.fmt(p[c.key]):p[c.key];
+      tr.append(td);
+    });
+    tbody.append(tr);
+  });
+}
+// ── END CHUNK 2 ───────────────────────────────────────────────────────────────
+
+// ── CHART HELPERS ─────────────────────────────────────────────────────────────
+const ACCENT='#d4a017',NAVY='#1a2332';
+const STYLE_COLORS={IPA:'#e07b39',Lager:'#5b9bd5',Stout:'#3d2b1f',Sour:'#c0392b',Wheat:'#f1c40f',Porter:'#7d6144','Pale Ale':'#27ae60'};
+let chartBrand=null,chartStyle=null,chartScatter=null;
+
+function avgBy(data,key){
+  const groups={};
+  data.forEach(p=>{if(!groups[p[key]])groups[p[key]]=[];groups[p[key]].push(p.pricePerOz);});
+  return Object.entries(groups).map(([k,vals])=>({label:k,value:vals.reduce((a,b)=>a+b,0)/vals.length}))
+    .sort((a,b)=>b.value-a.value);
+}
+
+function renderBarChart(canvasId,chartRef,data,key){
+  const agg=avgBy(data,key);
+  const cfg={
+    type:'bar',
+    data:{labels:agg.map(d=>d.label),datasets:[{data:agg.map(d=>d.value),backgroundColor:ACCENT,borderRadius:4,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.parsed.x.toFixed(3)+'/oz'}}},
+      scales:{x:{ticks:{callback:v=>'$'+v.toFixed(3)},grid:{color:'#f0f0f0'}},y:{ticks:{font:{size:11}}}}}
+  };
+  if(chartRef){chartRef.data.labels=cfg.data.labels;chartRef.data.datasets[0].data=cfg.data.datasets[0].data;chartRef.update();return chartRef;}
+  return new Chart(document.getElementById(canvasId),cfg);
+}
+
+function renderScatter(data){
+  const datasets=Object.keys(STYLE_COLORS).map(style=>{
+    const pts=data.filter(p=>p.style===style).map(p=>({x:p.abv,y:p.pricePerOz,p}));
+    return{label:style,data:pts,backgroundColor:STYLE_COLORS[style]+'cc',pointRadius:7,pointHoverRadius:9};
+  }).filter(d=>d.data.length);
+  const cfg={
+    type:'scatter',
+    data:{datasets},
+    options:{responsive:true,plugins:{
+      legend:{position:'right',labels:{font:{size:11},boxWidth:12}},
+      tooltip:{callbacks:{label:ctx=>{const p=ctx.raw.p;return[`${p.productName}`,'@ '+p.retailer,`$${p.price.toFixed(2)}  •  ${p.abv}% ABV  •  $${p.pricePerOz.toFixed(3)}/oz`];}}}
+    },scales:{x:{title:{display:true,text:'ABV (%)'},ticks:{callback:v=>v+'%'}},y:{title:{display:true,text:'Price/oz ($)'},ticks:{callback:v=>'$'+v.toFixed(3)}}}}
+  };
+  if(chartScatter){chartScatter.data.datasets=datasets;chartScatter.update();return;}
+  chartScatter=new Chart(document.getElementById('cScatter'),cfg);
+}
+
+function renderBestValue(data){
+  const top5oz=[...data].sort((a,b)=>a.pricePerOz-b.pricePerOz).slice(0,5);
+  const top5alc=[...data].sort((a,b)=>a.pricePerAlcoholUnit-b.pricePerAlcoholUnit).slice(0,5);
+  function mkList(el,items,metric){
+    el.innerHTML='';
+    if(!items.length){el.innerHTML='<div class="bvi"><span>No data</span></div>';return;}
+    items.forEach(p=>{
+      const d=document.createElement('div');d.className='bvi';
+      d.innerHTML=`<span class="bvn" title="${p.productName} — ${p.retailer}">${p.productName}</span><span class="bvv">$${p[metric].toFixed(3)}</span>`;
+      el.append(d);
+    });
+  }
+  mkList(document.getElementById('bvOz'),top5oz,'pricePerOz');
+  mkList(document.getElementById('bvAlc'),top5alc,'pricePerAlcoholUnit');
+}
+// ── END CHUNK 3 ───────────────────────────────────────────────────────────────
+
+// ── RENDER (master) ───────────────────────────────────────────────────────────
+function render(){
+  const data=filtered();
+  document.getElementById('hdr-count').textContent=`${data.length} of ${products.length} products`;
+  renderTable(data);
+  chartBrand=renderBarChart('cBrand',chartBrand,data,'brand');
+  chartStyle=renderBarChart('cStyle',chartStyle,data,'style');
+  renderScatter(data);
+  renderBestValue(data);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+let resetPrice,resetAbv;
+
+function initFilters(){
+  mkCheckboxGroup('f-retailer','Retailer',RETAILERS,state.retailers);
+  mkCheckboxGroup('f-style','Style',STYLES,state.styles);
+  mkCheckboxGroup('f-brand','Brand',BRANDS,state.brands);
+  resetPrice=mkRangeSlider('f-price','Price ($)',pMin,pMax,0.01,(a,b)=>{state.pLo=a;state.pHi=b;});
+  resetAbv=mkRangeSlider('f-abv','ABV (%)',aMin,aMax,0.1,(a,b)=>{state.aLo=a;state.aHi=b;});
+}
+
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  state.retailers=new Set(RETAILERS);
+  state.styles=new Set(STYLES);
+  state.brands=new Set(BRANDS);
+  // rebuild checkbox groups
+  ['f-retailer','f-style','f-brand'].forEach(id=>document.getElementById(id).querySelectorAll('input').forEach(cb=>cb.checked=true));
+  resetPrice();resetAbv();
+  render();
+});
+
+initFilters();
+render();
+// ── END CHUNK 4 ───────────────────────────────────────────────────────────────
+</script></body></html>

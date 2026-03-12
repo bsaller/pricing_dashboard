@@ -1,0 +1,13 @@
+{
+  "name": "beer-pricing-scraper",
+  "version": "1.0.0",
+  "description": "Web scraper for beer pricing analytics dashboard",
+  "scripts": {
+    "scrape": "node scraper/scrape.js"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
