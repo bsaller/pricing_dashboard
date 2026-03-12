@@ -1,13 +1,13 @@
 {
-  "lastRun": "2026-03-12T18:24:58.127Z",
+  "lastRun": "2026-03-12T18:50:43.383Z",
   "retailers": {
     "Binny's": {
       "status": "success",
-      "lastSuccess": "2026-03-12T18:23:28.487Z",
+      "lastSuccess": "2026-03-12T18:50:30.481Z",
       "productCount": 46
     },
     "Total Wine": {
-      "status": "not_implemented",
+      "status": "failed",
       "lastSuccess": null,
       "productCount": 0
     },
