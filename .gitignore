@@ -1,2 +1,17 @@
 node_modules/
+
+# Scraper probe response dumps
 scraper/tw_resp_*.json
+scraper/aldi_resp.json
+scraper/aldi_products_*.json
+scraper/aldi_beer.json
+scraper/costco_resp.json
+scraper/target_resp.json
+scraper/wag_resp_*.json
+scraper/tonys_items.json
+scraper/ic_gql_*.json
+scraper/ic_products_*.json
+scraper/instacart_resp_*.json
+
+# Local IDE settings
+.claude/settings.local.json
