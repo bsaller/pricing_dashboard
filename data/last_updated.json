@@ -1,9 +1,9 @@
 {
-  "lastRun": "2026-03-13T22:44:36.702Z",
+  "lastRun": "2026-03-15T17:35:38.216Z",
   "retailers": {
     "Binny's": {
       "status": "success",
-      "lastSuccess": "2026-03-13T22:42:58.842Z",
+      "lastSuccess": "2026-03-15T17:34:49.943Z",
       "productCount": 46
     },
     "Total Wine": {
@@ -18,8 +18,8 @@
     },
     "Whole Foods": {
       "status": "success",
-      "lastSuccess": "2026-03-13T22:44:13.336Z",
-      "productCount": 215
+      "lastSuccess": "2026-03-15T17:35:15.985Z",
+      "productCount": 223
     },
     "Mariano's": {
       "status": "not_implemented",
@@ -28,8 +28,8 @@
     },
     "Tony's Fresh Market": {
       "status": "success",
-      "lastSuccess": "2026-03-13T22:44:36.701Z",
-      "productCount": 28
+      "lastSuccess": "2026-03-15T17:35:38.216Z",
+      "productCount": 38
     }
   }
 }

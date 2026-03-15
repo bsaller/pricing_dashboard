@@ -10,10 +10,7 @@ const MIN_VALID   = 5; // reject any scrape returning fewer products
 
 const RETAILERS = [
   { name: "Binny's",               file: 'binny'      },
-  { name: "Total Wine",            file: 'totalwine'  },
-  { name: "Jewel",                 file: 'jewel'      },
   { name: "Whole Foods",           file: 'wholefoods' },
-  { name: "Mariano's",             file: 'marianos'   },
   { name: "Tony's Fresh Market",   file: 'tonys'      },
 ];
 

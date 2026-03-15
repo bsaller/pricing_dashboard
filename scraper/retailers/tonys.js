@@ -136,7 +136,13 @@ async function scrape() {
         .test(nameLower)) continue;
 
     const brand = titleCase(item.brandName || item.name.split(' ').slice(0, 2).join(' '));
-    const { packSize, sizeOz } = parsePricingUnit(unitStr, item.size);
+    let { packSize, sizeOz } = parsePricingUnit(unitStr, item.size);
+    // Sanity check: if sizeOz looks like a total-oz value (>64oz per "unit"),
+    // and dividing by packSize yields a plausible single-container size, correct it.
+    if (sizeOz > 64 && packSize > 1) {
+      const perUnit = sizeOz / packSize;
+      if (perUnit <= 64) sizeOz = perUnit;
+    }
 
     products.push({
       retailer: "Tony's Fresh Market",
